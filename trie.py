@@ -126,7 +126,7 @@ def load_trie_from_csv(root, filename: str = "trie_data.csv"):
             description = int(row[1])
             add(root, word, description)
 
-def get_description(node: TrieNode, descriptionsfile: str = "TrieDescriptions.csv") -> str:
+def get_description(node: TrieNode, descriptionsfile: str = "trie_descriptions.csv") -> str:
     """
     Return the description text of a word with from the given node in the trie
     Still need to test with bigger files
