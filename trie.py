@@ -83,9 +83,7 @@ def find_prefix(root, prefix: str) -> Tuple[bool, int]:
 # This method is a copy of find_prefix() with another return.
 def get_prefix(root, prefix: str) -> TrieNode:
     """
-    Check and return
-      1. If the prefix exsists in any of the words we added so far
-      2. If yes then how may words actually have the prefix
+    Check and return the node of the trie
     """
     node = root
     # If the root node has no children, then return False.
@@ -126,7 +124,7 @@ def load_trie_from_csv(root, filename: str = "trie_data.csv"):
             description = int(row[1])
             add(root, word, description)
 
-def get_description(node: TrieNode, descriptionsfile: str = "trie_descriptions.csv") -> str:
+def get_description(node: TrieNode, descriptionsfile: str = "trie_descriptions.txt") -> str:
     """
     Return the description text of a word with from the given node in the trie
     Still need to test with bigger files
@@ -136,11 +134,11 @@ def get_description(node: TrieNode, descriptionsfile: str = "trie_descriptions.c
         return "";
 
     # Creates a meta-object to access the file without loading to RAM
-    with open(descriptionsfile) as csvfile:
+    with open(descriptionsfile) as txtfile:
         # Convert io text wrapper object to list so we can access an index. Need to test if not loads to RAM
-        csvlist = list(csvfile)
+        txtlist = list(txtfile)
         # Gets only the description we want
-        description = csvlist[node.description]
+        description = txtlist[node.description]
         # Remove "\n" of the end of the description
         if description.endswith("\n"):
             description = description[:-2]
