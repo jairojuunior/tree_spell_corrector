@@ -2,8 +2,9 @@
 #from: https://towardsdatascience.com/implementing-a-trie-data-structure-in-python-in-less-than-100-lines-of-code-a877ea23c1a1
 
 from typing import Tuple
-
-
+import linecache
+from IPython.display import Markdown, display
+    
 class TrieNode(object):
     """
     Our trie node implementation. Very basic. but does the job
@@ -19,9 +20,11 @@ class TrieNode(object):
         # Is it the last character of a word.
         self.is_word = False        
         # If is a word, so must have a description and a index to be used in description file
-        self.description = -1
-
-def add(root, word: str, description: int):
+        self.description = '-1'
+        # Line where the description are
+        self.line = -1
+        
+def add(root, word: str, description: str, line: int):
     """
     Adding a word in the trie structure
     """
@@ -49,6 +52,7 @@ def add(root, word: str, description: int):
     node.is_final = True
     node.is_word = True
     node.description = description
+    node.line = line
 
 def find_prefix(root, prefix: str) -> Tuple[bool, int]:
     """
@@ -56,6 +60,7 @@ def find_prefix(root, prefix: str) -> Tuple[bool, int]:
       1. If the prefix exsists in any of the words we added so far
       2. If yes then how may words actually have the prefix
     """
+    prefix = prefix.lower()
     node = root
     # If the root node has no children, then return False.
     # Because it means we are trying to search in an empty trie
@@ -78,7 +83,7 @@ def find_prefix(root, prefix: str) -> Tuple[bool, int]:
     # Well, we are here means we have found the prefix. Return true to indicate that
     # And also the counter of the last node. This indicates how many words have this
     # prefix
-    return True, node.num_children
+    return True, node.line
 
 # This method is a copy of find_prefix() with another return.
 def get_prefix(root, prefix: str) -> TrieNode:
@@ -91,6 +96,7 @@ def get_prefix(root, prefix: str) -> TrieNode:
     if not root.children:
         return None
     
+    prefix = prefix.lower()
     for char in prefix:
         char_not_found = True
         # Search through all the children of the present `node`
@@ -109,58 +115,45 @@ def get_prefix(root, prefix: str) -> TrieNode:
     # prefix
     return node
 
-def load_trie_from_csv(root, filename: str = "trie_data.csv"):
+def load_trie_from_csv(root, folder: str = "df/"):
     """
-    Load rows of a .csv file to a root node of a trie as new words
-    Still need to test with bigger files
+    Load all the .txt file to a root node of a trie as new words
     """
-    # Creates a meta-object to access the file without loading to RAM
-    with open(filename) as csvfile:
-        # Creates a reader to run over the rows and columns of a csv file
-        readcsv = csv.reader(csvfile, delimiter = ',')
-        for row in readcsv:
-            word = row[0]
-            # Convert string to int
-            description = int(row[1])
-            add(root, word, description)
+    import pandas as pd
+    files =    ['A.txt','B.txt','C.txt','D.txt','E.txt',
+                'F.txt','G.txt','H.txt','I.txt','J.txt',
+                'K.txt','L.txt','M.txt','N.txt','O.txt',
+                'P.txt','Q.txt','R.txt','S.txt','T.txt',
+                'U.txt','V.txt','W.txt','X.txt','Y.txt','Z.txt']
+    
+    for file in files:
+        
+        path = folder+file
+        
+        df = pd.read_csv(path, sep='¨',engine='python',header=None)
+        df.columns = ['Word','Descr']
+       
 
-def get_description(node: TrieNode, descriptionsfile: str = "trie_descriptions.txt") -> str:
+        for line, raw in enumerate(df['Word']):
+            
+            word =  raw.replace('*','').lower()
+
+            add(root, word, path, line)   
+
+def printmd(string):
+    display(Markdown(string))
+    
+def get_description(node: TrieNode) -> str:
     """
     Return the description text of a word with from the given node in the trie
     Still need to test with bigger files
     """
+
+
     # Return nothing if description index is invalid
-    if node.description < 0:
+    if node.description == '-1':
         return "";
-
-    # Creates a meta-object to access the file without loading to RAM
-    with open(descriptionsfile) as txtfile:
-        # Convert io text wrapper object to list so we can access an index. Need to test if not loads to RAM
-        txtlist = list(txtfile)
-        # Gets only the description we want
-        description = txtlist[node.description]
-        # Remove "\n" of the end of the description
-        if description.endswith("\n"):
-            description = description[:-2]
-        return description
-
-if __name__ == "__main__":
-    root = TrieNode('*')
-    
-    add(root, "hackathon", 0)
-    add(root, 'hack', 1)
-    # Same thing reading from csv
-    # load_trie_from_csv(root)
-
-    print(find_prefix(root, 'hac'))
-    print(find_prefix(root, 'hack'))
-    print(find_prefix(root, 'hackathon'))
-    print(find_prefix(root, 'ha'))
-    print(find_prefix(root, 'hammer'))
-    
-    # Example of reading from csv
-    node = get_prefix(root, 'hackathon')
-    if node.is_final:
-        print(get_description(node))
     else:
-        print("Palavra não encontrada")
+        text = linecache.getline(node.description, node.line+1)
+        return text.split('¨')[1]
+
