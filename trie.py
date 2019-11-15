@@ -187,11 +187,52 @@ def get_description(node: TrieNode) -> str:
 
 
     # Return nothing if description index is invalid
-    if node.description == '-1':
+    if node is None or node.description == '-1':
         return "";
     else:
         text = linecache.getline(node.description, node.line+1)
         return text.split('¨')[1]
+    
+ def get_suggestions(root: TrieNode, word: str, validChangeAmount: int) -> set:
+    '''
+    Return a set with all possible prefixes of the word by the given amount of valid changes
+    '''
+    suggestions = set()
+    suggest(root, word, 0, "", validChangeAmount, suggestions)
+    return suggestions
+
+def suggest(node: TrieNode, word: str, changes: int, prefix: str, validChangeAmount: int, suggestions: set):
+    '''
+    Recursive method to run a "depth search" to get the valid prefixes of a word
+    '''
+
+    # Verify that the number of changes was not exceeded
+    if changes > validChangeAmount:
+        return
+    
+    # Add a valid word to the set of suggestions
+    if node.is_word:
+        suggestions.add(prefix)
+
+    # Treatment when all the word was read
+    if word == "":
+        for child in node.children:
+            # Including suggestions that extend the word
+            suggest(child, word, changes + 1, prefix + child.char, validChangeAmount, suggestions)
+        return
+
+    # Including suggestions that has an additional character
+    suggest(node, word[1:], changes + 1, prefix, validChangeAmount, suggestions)
+
+    for child in node.children:
+        if child.char == word[0]:
+            # Just reading when the characters match
+            suggest(child, word[1:], changes, prefix + child.char, validChangeAmount, suggestions)
+        elif changes < validChangeAmount:
+            # Including suggestions that has a lost character
+            suggest(child, word, changes + 1, prefix + child.char, validChangeAmount, suggestions)
+            # Including suggestions that has a changed character
+            suggest(child, word[1:], changes + 1, prefix + child.char, validChangeAmount, suggestions)
 
     
 if __name__ == "__main__":
