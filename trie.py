@@ -4,7 +4,8 @@
 from typing import Tuple
 import linecache
 from IPython.display import Markdown, display
-    
+import pandas as pd
+
 class TrieNode(object):
     """
     Our trie node implementation. Very basic. but does the job
@@ -69,7 +70,7 @@ def find_prefix(root, prefix: str) -> Tuple[bool, int]:
 
     for char in prefix:
         char_not_found = True
-        # Search through all the children of the present `node`
+        # Search throughly be used on functions defined in physical files, all the children of the present `node`
         for child in node.children:
             if child.char == char:
                 # We found the char existing in the child.
@@ -119,6 +120,9 @@ def load_trie_from_csv(root, folder: str = "df/"):
     """
     Load all the .txt file to a root node of a trie as new words
     """
+    #count = 0
+    execucao = pd.DataFrame([], columns=['contagem','tempo'])
+    
     import pandas as pd
     files =    ['A.txt','B.txt','C.txt','D.txt','E.txt',
                 'F.txt','G.txt','H.txt','I.txt','J.txt',
@@ -135,10 +139,42 @@ def load_trie_from_csv(root, folder: str = "df/"):
        
 
         for line, raw in enumerate(df['Word']):
+            count = count + 1
             
             word =  raw.replace('*','').lower()
 
-            add(root, word, path, line)   
+            tempo = calcular ( add(root, word, path, line) )  
+
+            execucao.append([count,tempo])
+
+    return execucao 
+
+from memory_profiler import profile
+@profile
+def checar(raiz):
+    
+    files =    ['A.txt','B.txt','C.txt','D.txt','E.txt',
+                'F.txt','G.txt','H.txt','I.txt','J.txt',
+                'K.txt','L.txt','M.txt','N.txt','O.txt',
+                'P.txt','Q.txt','R.txt','S.txt','T.txt',
+                'U.txt','V.txt','W.txt','X.txt','Y.txt','Z.txt']
+
+    folder = 'df/'
+
+    for file in files:
+
+        path = folder+file
+
+        df = pd.read_csv(path, sep='¨',engine='python',header=None)
+        df.columns = ['Word','Descr']
+
+
+        for line, raw in enumerate(df['Word']):
+
+
+            word =  raw.replace('*','').lower()
+
+            add(raiz, word, path, line)  
 
 def printmd(string):
     display(Markdown(string))
@@ -157,3 +193,6 @@ def get_description(node: TrieNode) -> str:
         text = linecache.getline(node.description, node.line+1)
         return text.split('¨')[1]
 
+    
+if __name__ == "__main__":
+    checar(TrieNode('*'))
