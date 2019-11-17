@@ -211,7 +211,7 @@ def suggest(node: TrieNode, word: str, changes: int, prefix: str, validChangeAmo
         return
     
     # Add a valid word to the set of suggestions
-    if node.is_word:
+    if node.is_word and len(word) < validChangeAmount:
         suggestions.add(prefix)
 
     # Treatment when all the word was read
