@@ -193,7 +193,7 @@ def get_description(node: TrieNode) -> str:
         text = linecache.getline(node.description, node.line+1)
         return text.split('¨')[1]
     
- def get_suggestions(root: TrieNode, word: str, validChangeAmount: int) -> set:
+def get_suggestions(root: TrieNode, word: str, validChangeAmount: int) -> set:
     '''
     Return a set with all possible prefixes of the word by the given amount of valid changes
     '''
