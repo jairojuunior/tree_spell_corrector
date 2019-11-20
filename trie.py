@@ -255,7 +255,7 @@ if __name__ == "__main__":
 
         if(palavra != '-1'):
         
-            print("recebi sua palavra e ela é: \"", palavra+"\"", end='')
+            print("recebi sua palavra e ela é:\"", palavra+"\"", end='')
             print(" e agora vamos realizar a busca :)")
 
             retorno_busca = get_prefix(root,palavra)
