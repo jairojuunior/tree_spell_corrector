@@ -120,17 +120,20 @@ def load_trie_from_csv(root, folder: str = "df/"):
     """
     Load all the .txt file to a root node of a trie as new words
     """
-    #count = 0
+    count = 0
+    from tqdm import tqdm
+    import pandas as pd
+   
     execucao = pd.DataFrame([], columns=['contagem','tempo'])
     
-    import pandas as pd
+
     files =    ['A.txt','B.txt','C.txt','D.txt','E.txt',
                 'F.txt','G.txt','H.txt','I.txt','J.txt',
                 'K.txt','L.txt','M.txt','N.txt','O.txt',
                 'P.txt','Q.txt','R.txt','S.txt','T.txt',
                 'U.txt','V.txt','W.txt','X.txt','Y.txt','Z.txt']
     
-    for file in files:
+    for file in tqdm(files):
         
         path = folder+file
         
@@ -143,14 +146,12 @@ def load_trie_from_csv(root, folder: str = "df/"):
             
             word =  raw.replace('*','').lower()
 
-            tempo = calcular ( add(root, word, path, line) )  
-
-            execucao.append([count,tempo])
+            add(root, word, path, line) 
 
     return execucao 
 
-from memory_profiler import profile
-@profile
+#from memory_profiler import profile
+#@profile
 def checar(raiz):
     
     files =    ['A.txt','B.txt','C.txt','D.txt','E.txt',
@@ -160,8 +161,10 @@ def checar(raiz):
                 'U.txt','V.txt','W.txt','X.txt','Y.txt','Z.txt']
 
     folder = 'df/'
+    from tqdm import tqdm
+    import pandas as pd
 
-    for file in files:
+    for file in tqdm(files):
 
         path = folder+file
 
@@ -236,4 +239,45 @@ def suggest(node: TrieNode, word: str, changes: int, prefix: str, validChangeAmo
 
     
 if __name__ == "__main__":
-    checar(TrieNode('*'))
+    print("Olá, seja bem-vindo!")
+
+
+    print("Vamos construir a raiz!")
+    root = TrieNode('*')
+    print("raiz construída, agora vamos adicionar os nós")
+    #funcao que carrega o dicionário!
+    load_trie_from_csv(root, "df/")
+    #agora vamos para previsão das palavras:
+    palavra = '0'
+    while(palavra != '-1'):
+        print("\nPor favor informe qual palavra você quer conhecer que diremos que se há no dicionário para sair digite -1\n \t")
+        palavra = str(input())
+
+        if(palavra != '-1'):
+        
+            print("recebi sua palavra e ela é: \"", palavra+"\"", end='')
+            print(" e agora vamos realizar a busca :)")
+
+            retorno_busca = get_prefix(root,palavra)
+            print("O resultado da busca foi: ", end ='')
+            if(retorno_busca != None):
+                print("Encontramos uma palavra na nossa árvore digital")
+                print("o significado dela é: ", end='')
+                print(get_description(retorno_busca))
+            else:
+                 print("Infelizmente não encontramos :(\n Você deseja adicionar essa palavra?\n digite sim ou não")
+                 resposta = str(input())
+                 
+                 if(resposta == 'sim'):
+                 
+                    print("por favor informe para nós a descrição dela :)")
+                    descricao = str(input())
+
+                    add(root, palavra, descricao, -1) 
+
+                    print("palavra adicionada!")
+
+
+
+    
+
