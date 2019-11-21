@@ -196,7 +196,7 @@ def get_description(node: TrieNode) -> str:
         text = linecache.getline(node.description, node.line+1)
         return text.split('¨')[1]
     
-def get_suggestions(root: TrieNode, word: str, validChangeAmount: int) -> set:
+def get_suggestions(root: TrieNode, word: str, validChangeAmount =  1) -> set:
     '''
     Return a set with all possible prefixes of the word by the given amount of valid changes
     '''
@@ -215,6 +215,7 @@ def suggest(node: TrieNode, word: str, changes: int, prefix: str, validChangeAmo
     
     # Add a valid word to the set of suggestions
     if node.is_word and len(word) < validChangeAmount:
+        #print(prefix)
         suggestions.add(prefix)
 
     # Treatment when all the word was read
@@ -239,6 +240,8 @@ def suggest(node: TrieNode, word: str, changes: int, prefix: str, validChangeAmo
 
     
 if __name__ == "__main__":
+
+    import numpy as np
     print("Olá, seja bem-vindo!")
 
 
@@ -259,23 +262,46 @@ if __name__ == "__main__":
             print(" e agora vamos realizar a busca :)")
 
             retorno_busca = get_prefix(root,palavra)
-            print("O resultado da busca foi: ", end ='')
+            print("\nO resultado da busca foi: ", end ='')
             if(retorno_busca != None):
                 print("Encontramos uma palavra na nossa árvore digital")
                 print("o significado dela é: ", end='')
                 print(get_description(retorno_busca))
             else:
-                 print("Infelizmente não encontramos :(\n Você deseja adicionar essa palavra?\n digite sim ou não")
-                 resposta = str(input())
-                 
-                 if(resposta == 'sim'):
-                 
-                    print("por favor informe para nós a descrição dela :)")
-                    descricao = str(input())
+                print("Infelizmente não encontramos :(\n Algumas das sugestões de palavras foram:")
+                sugestoes = get_suggestions(root, palavra)
 
-                    add(root, palavra, descricao, -1) 
+                for ind, sug in enumerate(sugestoes):
+                    print("\t\tSugestão número {:d} é {:s}".format(ind, sug))
 
-                    print("palavra adicionada!")
+                print("A palavra que você deseja está contida nas sugestões? (sim ou não)" )
+                resposta = str(input())
+                 
+                if(resposta == 'sim'):
+
+                    print("Qual é o número da palavra?")
+
+                    numero = int(input())
+
+                    check = np.isin(numero,range(0, len(sugestoes))) 
+                    
+
+                    if(check):
+                        #import pdb; pdb.set_trace()
+                        print(get_description(get_prefix(root, list(sugestoes)[numero])))
+                    else:
+                        print("número inválido :(")
+
+                else:
+                    print("Você deseja adicionar essa palavra? (sim ou não)")
+                    add = str(input())
+                    if(add == 'sim'):
+                        print("por favor informe para nós a descrição dela :)")
+                        descricao = str(input())
+
+                        add(root, palavra, descricao, -1) 
+
+                        print("palavra adicionada!")
 
 
 
